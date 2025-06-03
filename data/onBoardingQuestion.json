@@ -1,0 +1,158 @@
+[
+  {
+    "id": 1.1,
+    "type": "fieldBox",
+    "required": true,
+    "mainQuestion": "Peux-tu nous en dire plus sur toi ?",
+    "secondaryQuestion": "",
+    "data": [
+      {
+        "title": "Nom d'utilisateur",
+        "desc": "Entrez votre username",
+        "name": "username",
+        "fieldType": "string"
+      },
+      {
+        "title": "Prenom",
+        "desc": "Entrez votre prénom",
+        "name": "name",
+        "fieldType": "string"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "type": "checkBox",
+    "required": true,
+    "mainQuestion": "Peux-tu nous en dire plus sur toi ?",
+    "secondaryQuestion": "Ton genre ?",
+    "data": [
+      { "answer": "Masculin", "name": "gender" },
+      { "answer": "Féminin", "name": "gender" },
+      { "answer": "Non binaire", "name": "gender" }
+    ]
+  },
+  {
+    "id": 2,
+    "type": "fieldBox",
+    "required": true,
+
+    "mainQuestion": "Peux-tu nous en dire plus sur toi ?",
+    "secondaryQuestion": "",
+    "data": [
+      {
+        "title": "Age",
+        "desc": "Entrez votre âge",
+        "name": "age",
+        "fieldType": "number",
+        "range": [5, 99]
+      },
+      {
+        "title": "Ville",
+        "desc": "Entrez votre ville",
+        "name": "city",
+        "fieldType": "string"
+      }
+    ]
+  },
+  {
+    "id": 2.1,
+    "type": "fieldBox",
+    "required": true,
+    "mainQuestion": "Peux-tu nous en dire plus sur toi ?",
+    "secondaryQuestion": "",
+    "data": [
+      {
+        "title": "Poids",
+        "desc": "Entrez votre poids (en kg)",
+        "name": "weight",
+        "fieldType": "number",
+        "range": [20, 250]
+      },
+      {
+        "title": "Taille",
+        "desc": "Entrez votre taille (en cm)",
+        "name": "height",
+        "fieldType": "number",
+        "range": [100, 250]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "type": "imgSelect",
+    "required": true,
+    "mainQuestion": "",
+    "secondaryQuestion": "Choisis ton sport ?",
+    "data": [
+      {
+        "title": "Padel",
+        "src": "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747746036/projectFinDeBatch/front/images/medals/medal-padel-04_qowywo.png",
+        "name": "sportsPlayed"
+      },
+      {
+        "title": "Natation",
+        "src": "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747747696/projectFinDeBatch/front/images/medals/medal-natation-05_rhqkre.png",
+        "name": "sportsPlayed"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "type": "checkBoxObject",
+    "required": true,
+    "mainQuestion": "",
+    "secondaryQuestion": "Choisis ton niveau ?",
+
+    "data": [
+      {
+        "main": "Aucune expérience",
+        "desc": "Jamais fait un squat ? Aucun souci, on part de zéro.",
+        "name": "level"
+      },
+      {
+        "main": "Débutant",
+        "desc": "Tu as déjà transpiré un peu… et tu veux y revenir.",
+        "name": "level"
+      },
+      {
+        "main": "Intermédiaire",
+        "desc": "Tu connais la douleur des courbatures et t’en redemandes !",
+        "name": "level"
+      },
+      {
+        "main": "Avancé",
+        "desc": "Tu vis pour les défis et les séances qui brûlent !",
+        "name": "level"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "type": "checkBox",
+    "required": false,
+    "mainQuestion": "",
+    "secondaryQuestion": "Pourquoi cherches-tu un coach ? ",
+    "tertiary": "facultative",
+    "data": [
+      { "answer": "Pour me motiver", "name": "reason" },
+      { "answer": "Pour me challenger", "name": "reason" },
+      { "answer": "Pour rencontrer d’autres pratiquants", "name": "reason" },
+      { "answer": "Pour découvrir la pratique", "name": "reason" }
+    ]
+  },
+  {
+    "id": 6,
+    "type": "checkBox",
+    "required": false,
+    "mainQuestion": "",
+    "secondaryQuestion": "Quel est ton objectif ?",
+    "tertiary": "facultative",
+    "data": [
+      { "answer": "15 min/jour", "name": "dayTime" },
+      { "answer": "30 min/jour", "name": "dayTime" },
+      { "answer": "4 h/semaine", "name": "dayTime" },
+      { "answer": "8 h/semaine ou plus", "name": "dayTime" }
+    ]
+  }
+]

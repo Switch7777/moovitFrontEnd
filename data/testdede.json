@@ -1,0 +1,35 @@
+[
+  {
+    "_id": "68370854170232ba1971e325",
+    "description": "",
+    "image": "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747169059/projectFinDeBatch/front/images/activities/natation/natation-photo-001.avif",
+    "mediaUrl": "https://www.youtube.com/watch?v=OaU-U1ixKtU",
+    "subLevelID": 1,
+    "timing": 120,
+    "tipOfThePro": "Un conseil utile de pro",
+    "title": "Sous-niveau 4",
+    "xp": 50
+  },
+  {
+    "_id": "68370854170232ba1971e326",
+    "description": "",
+    "image": "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747169059/projectFinDeBatch/front/images/activities/natation/natation-photo-002.avif",
+    "mediaUrl": "https://www.youtube.com/watch?v=_uG7PHpTrn0",
+    "subLevelID": 2,
+    "timing": 120,
+    "tipOfThePro": "Un conseil utile de pro",
+    "title": "Sous-niveau 5",
+    "xp": 50
+  },
+  {
+    "_id": "68370854170232ba1971e327",
+    "description": "",
+    "image": "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747169059/projectFinDeBatch/front/images/activities/natation/natation-photo-003.avif",
+    "mediaUrl": "https://www.youtube.com/watch?v=fT0X9dqK1Wg",
+    "subLevelID": 3,
+    "timing": 120,
+    "tipOfThePro": "Un conseil utile de pro",
+    "title": "Sous-niveau 6",
+    "xp": 50
+  }
+]
