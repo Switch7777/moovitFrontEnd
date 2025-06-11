@@ -15,7 +15,7 @@ function CardLevelClicable(
     height = "150", //haut du boutton
     backgroundColor = "#FCEACE", //couleur du fond de la carte
     url = "https://reactnative.dev/img/tiny_logo.png", //petite img sur le coté
-    linkTo = "TabNavigator", //nom de la page ou rediriger
+    linkTo = "Dashboard", //nom de la page ou rediriger
     opacity = "1",
     fill = false, //image qui fait tout le composant
     subLevelSent = {},
@@ -23,10 +23,7 @@ function CardLevelClicable(
   props
 ) {
   const navigation = useNavigation();
-  
-  // const idf =()=>{
-  //   props.keyNum(props.key);
-  // }
+
   return (
     <TouchableOpacity //propriete qui permet de clicker comme button et onpress
       onPress={() => {
@@ -47,14 +44,23 @@ function CardLevelClicable(
             {/* {num} */}
           </Text>
           <Text
-            style={[styles.buttonDescription, {}]} // txt de despription
+            style={styles.buttonDescription}
+            numberOfLines={3}
+            ellipsizeMode="tail"
           >
             {description}
           </Text>
         </View>
         <Image
-          style={url===''? [styles.tinyLogo0, {}] :fill ? [styles.tinyLogo2, {}] : [styles.tinyLogo, {}]} //ternaire qui permet de changé de still si fill dans les props est false or true
-          source={{ uri: url }} //petit img d'illustration du coté
+          style={
+            url === ""
+              ? styles.tinyLogo0
+              : fill
+              ? styles.tinyLogo2
+              : styles.tinyLogo
+          }
+          source={{ uri: url }}
+          resizeMode={fill ? "cover" : "contain"}
         />
       </View>
     </TouchableOpacity>
@@ -74,7 +80,7 @@ const styles = StyleSheet.create({
   },
   container: {
     //zone d'affichage interne au composant
-    marginTop: "10",
+
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -92,41 +98,34 @@ const styles = StyleSheet.create({
     color: "black",
   },
   buttonDescription: {
-    //description sous le titre
-    flex: 0,
     flexWrap: "wrap",
     fontSize: 12,
-
     marginLeft: 15,
     fontWeight: "500",
     color: "#9a9898",
+    lineHeight: 16,
   },
   lines: {
-    // box qui contient le titre et la description
-    width: "60%",
+    flex: 1,
+    paddingRight: 10,
   },
   tinyLogo: {
-    //petit logo a drt
-    backgroundColor: "#e0e0e0",
-    borderRadius: 15,
-    alignSelf: "flex-end",
-    width: "30%",
-    height: "85%",
-    margin: 10,
-    marginRight: 15,
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+    marginRight: 10,
+    resizeMode: "cover",
   },
+
   tinyLogo2: {
-    //etatlement du logo comme une img de bg sur toute la taille du composant
-    flex: 1,
-    zIndex: -99999,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
     borderRadius: 15,
-    alignSelf: "center",
-    // justifyContent:"center",
-    width: "50%",
-    height: "105%",
-    marginLeft: "-59%",
-    marginRight: "1%",
-    marginTop: "-2%",
-    marginBottom: "5%",
+    zIndex: -1,
   },
 });

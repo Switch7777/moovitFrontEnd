@@ -1,9 +1,9 @@
-import React from "react"
-import { Image, View, StyleSheet } from "react-native"
+import React from "react";
+import { Image, View, StyleSheet } from "react-native";
 
 function PhotoProfil(props) {
   // Log pour checker URL à chaque render
-  console.log("PhotoProfil props.photoUrl =", props.photoUrl)
+
   return (
     <View style={styles.container}>
       <Image
@@ -13,14 +13,15 @@ function PhotoProfil(props) {
         onError={(e) => console.log("Erreur chargement image :", e.nativeEvent)}
       />
     </View>
-  )
+  );
 }
-export default PhotoProfil
+export default PhotoProfil;
 
 const styles = StyleSheet.create({
   container: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
+    marginHorizontal: 10,
     borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
@@ -31,4 +32,4 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-})
+});

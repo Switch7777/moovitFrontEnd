@@ -21,22 +21,28 @@ import {
   addInfoToStore,
   removeAllInfoToStore,
 } from "../../reducers/onBoardingSlice";
+import { addUserToStore } from "../../reducers/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { API_URL } from "@env";
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from "react-native-responsive-dimensions";
 
 export default function OnBoarding({ navigation }) {
   const [numQuestion, setNumQuestion] = useState(0);
   const [infos, setInfos] = useState({});
   const dispatch = useDispatch();
 
-  const tokenFromRedux = useSelector((state) => state.user.value.token);
+  const tokenFromRedux = useSelector((state) => state.user.value.provToken);
 
   const handleChange = (key, value) => {
     setInfos((e) => ({ ...e, [key]: value }));
   };
 
   useEffect(() => {
-    setInfos((e) => ({ ...e, token: tokenFromRedux }));
+    setInfos((e) => ({ ...e, provToken: tokenFromRedux }));
   }, []);
 
   useEffect(() => {
@@ -44,34 +50,37 @@ export default function OnBoarding({ navigation }) {
   }, [infos]);
 
   useEffect(() => {
-    if (numQuestion >= questionForm.length) {
-      fetch(`${API_URL}/api/users/onboarding`, {
+    console.log("numQuestion = ", numQuestion);
+    if (numQuestion === questionForm.length) {
+      fetch(`${API_URL}/api/auth/postsignup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(infos),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Backend non atteint");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Réponse du backend :", data);
-          navigation.navigate("TabNavigator");
-          dispatch(removeAllInfoToStore());
+      }).then((response) => {
+        const status = response.status;
+        response.json().then((data) => {
+          console.log(status);
+          if (status === 200) {
+            console.log(data);
+            dispatch(addUserToStore({ token: data.token }));
 
-        })
-        .catch((error) => {
-          console.error("Erreur lors de l’envoi :", error);
+            dispatch(removeAllInfoToStore());
+            navigation.navigate("Dashboard");
+          } else if (status === 400) {
+            console.log(data.error);
+          } else if (status === 404) {
+            console.log(data.error);
+          } else if (status === 422) {
+            console.log(data.error);
+          }
         });
+      });
     }
   }, [numQuestion]);
 
   const btnclick = () => {
-    
     if (questionForm[numQuestion]?.required) {
       for (let i = 0; i < questionForm[numQuestion].data.length; i++) {
         const key = questionForm[numQuestion].data[i].name;
@@ -101,93 +110,89 @@ export default function OnBoarding({ navigation }) {
       }
     }
 
-
-     setNumQuestion((n) => n + 1)
-
-    // if(numQuestion<questionForm.length){setNumQuestion((n) => n + 1)}
-    
+    setNumQuestion((n) => n + 1);
   };
 
   const onBoardingDisp = (numQuestion) => {
     if (questionForm[numQuestion]?.type) {
-      if (questionForm[numQuestion].type === "checkBox") {
-        return (
-          <CheckBoxGroup
-            question={questionForm[numQuestion]}
-            infos={infos}
-            handleChange={handleChange}
-          />
-        );
-      } else if (questionForm[numQuestion].type === "fieldBox") {
-        return (
-          <FieldBox
-            question={questionForm[numQuestion]}
-            infos={infos}
-            handleChange={handleChange}
-          />
-        );
-      } else if (questionForm[numQuestion].type === "imgSelect") {
-        return (
-          <ImageSelect
-            question={questionForm[numQuestion]}
-            infos={infos}
-            handleChange={handleChange}
-          />
-        );
-      } else if (questionForm[numQuestion].type === "checkBoxObject") {
-        return (
-          <CheckBoxObjectGroup
-            question={questionForm[numQuestion]}
-            infos={infos}
-            handleChange={handleChange}
-          />
-        );
-      } else {
-        return null;
+      switch (questionForm[numQuestion].type) {
+        case "checkBox":
+          return (
+            <CheckBoxGroup
+              question={questionForm[numQuestion]}
+              infos={infos}
+              handleChange={handleChange}
+            />
+          );
+        case "fieldBox":
+          return (
+            <FieldBox
+              question={questionForm[numQuestion]}
+              infos={infos}
+              handleChange={handleChange}
+            />
+          );
+        case "imgSelect":
+          return (
+            <ImageSelect
+              question={questionForm[numQuestion]}
+              infos={infos}
+              handleChange={handleChange}
+            />
+          );
+        case "checkBoxObject":
+          return (
+            <CheckBoxObjectGroup
+              question={questionForm[numQuestion]}
+              infos={infos}
+              handleChange={handleChange}
+            />
+          );
+        default:
+          return null;
       }
-    } else {
-      return null;
     }
+    return null;
   };
 
   return (
-    numQuestion<questionForm.length && <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.flexGrow}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.flexGrow}>
-            {/* Scroll sur le contenu uniquement */}
-            <ScrollView
-              contentContainerStyle={styles.scrollContainer}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.countForm}>
-                <Text style={styles.countFormText}>
-                  Question : {numQuestion + 1}/{questionForm.length}
-                </Text>
+    numQuestion < questionForm.length && (
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          style={styles.flexGrow}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.flexGrow}>
+              <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.countForm}>
+                  <Text style={styles.countFormText}>
+                    Question : {numQuestion + 1}/{questionForm.length}
+                  </Text>
+                </View>
+
+                <ProgressBarComp
+                  count={numQuestion}
+                  total={questionForm.length}
+                />
+
+                <View style={styles.formContent}>
+                  {onBoardingDisp(numQuestion)}
+                </View>
+              </ScrollView>
+
+              <View style={styles.fixedButton}>
+                <Button title="Continuer" onPress={btnclick} />
               </View>
-
-              <ProgressBarComp
-                count={numQuestion}
-                total={questionForm.length}
-              />
-
-              <View style={styles.formContent}>
-                {onBoardingDisp(numQuestion)}
-              </View>
-            </ScrollView>
-
-            {/* Bouton en dehors du scroll, visible au-dessus du clavier */}
-            <View style={styles.fixedButton}>
-              <Button title="Continuer" onPress={btnclick} />
             </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    )
   );
 }
 
@@ -195,46 +200,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    paddingTop: 60,
+    paddingTop: responsiveHeight(6),
   },
-
   flexGrow: {
     flex: 1,
   },
-
   countForm: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: responsiveWidth(5),
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: responsiveHeight(1.2),
   },
-
   countFormText: {
     fontFamily: "Questrial",
-    fontSize: 20,
+    fontSize: responsiveFontSize(2.4),
     color: "#858585",
     textAlign: "center",
     flex: 1,
     width: "100%",
   },
-
   formContent: {
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 30,
-    paddingBottom: 30,
+    paddingTop: responsiveHeight(3.5),
+    paddingBottom: responsiveHeight(3.5),
   },
-
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 100, // Laisse de la place au bouton
   },
-
   fixedButton: {
-    paddingHorizontal: 20,
-    paddingBottom: Platform.OS === "ios" ? 20 : 10,
-    backgroundColor: "white",
+    position: "absolute",
+    bottom: Platform.OS === "ios" ? 0 : 0,
+    left: 20,
+    right: 20,
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
   },
 });

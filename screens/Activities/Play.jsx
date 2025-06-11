@@ -1,23 +1,60 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, SafeAreaView } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { useState, useEffect } from "react";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
+import { useSelector } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
+import { API_URL } from "@env";
+
 import OnPlay from "./OnActPlay/OnPlay";
 import OnDone from "./OnActPlay/OnDone";
 import OnProgress from "./OnActPlay/OnProgress";
-
-import { addUserToStore } from "../../reducers/userSlice";
 import Button from "../../components/Buttons";
-import { Ionicons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
-import { width } from "deprecated-react-native-prop-types/DeprecatedImagePropType";
+import LoadingScreen from "../../components/LoadingPage";
 
 export default function Play({ navigation }) {
-  const user = useSelector((state) => state.user.value);
-  const activity = useSelector((state) => state.activity.value);
-  const dispatch = useDispatch();
+  const token = useSelector((state) => state.user.value.token);
+  const user = useSelector((state) => state.userInfo.value);
+
   const tabLevel = ["onPlay", "onDone", "onProgress"];
   const [levelStatus, setLevelStatus] = useState(0);
+  const [activity, setActivity] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [level, setLevel] = useState(user.level);
+  const [subLevel, setSubLevel] = useState(user.subLevel);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/activity/getdataact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: token,
+        sport: user.sport.title,
+        subLevel: user.subLevel,
+        level: user.level,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result !== false) {
+          setActivity(data.activity);
+          setIsLoading(false);
+        } else {
+          console.log("Erreur :", data.error);
+        }
+      })
+      .catch((err) => console.error("Erreur réseau :", err));
+  }, []);
+
+  useEffect(() => {
+    setLevel(user.level);
+    setSubLevel(user.subLevel);
+  }, [user.level, user.subLevel]);
+
+  if (isLoading || !activity) {
+    return <LoadingScreen message="Chargement du niveau..." />;
+  }
+
+  const totalSubLevels = activity.length;
+  const subLevelInfos = activity[subLevel - 1];
 
   const plusstate = () => {
     if (levelStatus < tabLevel.length - 1) {
@@ -27,6 +64,7 @@ export default function Play({ navigation }) {
       setLevelStatus(0);
     }
   };
+
   const moinstate = () => {
     if (levelStatus > 0) {
       setLevelStatus(levelStatus - 1);
@@ -35,65 +73,43 @@ export default function Play({ navigation }) {
     }
   };
 
-  console.log(user);
-  const totalSubLevels = activity.length;
-  let currentLevel = [user.currentLevelID, user.currentSubLevelID];
   let nextLevel = [];
-
-  if (currentLevel[1] == totalSubLevels) {
-    nextLevel = [currentLevel[0] + 1, 1];
-    currentLevel[1] = 0;
-    currentLevel[0] = currentLevel[0] + 1;
+  if (subLevel === totalSubLevels - 1) {
+    nextLevel = [level + 1, 1];
   } else {
-    nextLevel = [currentLevel[0], currentLevel[1] + 1];
+    nextLevel = [level, subLevel + 1];
   }
-
-  const [level, setLevel] = useState(currentLevel[0]);
-  const [subLevel, setSubLevel] = useState(currentLevel[1]);
-  const subLevelInfos = activity[subLevel];
 
   const timing = subLevelInfos.timing;
   const levelxp = subLevelInfos.xp;
   const titleSubLevel = subLevelInfos.title;
-  const pourcent = Math.floor((100 * (subLevel + 1)) / totalSubLevels);
+  const pourcent = Math.floor((100 * (subLevel - 1)) / totalSubLevels);
 
-  useEffect(() => {
-    setLevel(currentLevel[0]);
-    setSubLevel(currentLevel[1]);
-  }, [user.currentLevelID, user.currentSubLevelID]);
-
-  let toDisp;
+  let toDisp = null;
   if (tabLevel[levelStatus] === "onPlay") {
-    toDisp = <OnPlay infos={subLevelInfos} title={user.titleLevel} />;
+    toDisp = <OnPlay infos={subLevelInfos} title={activity.title} />;
   } else if (tabLevel[levelStatus] === "onDone") {
     toDisp = (
       <OnDone
-        user={user.username}
+        user={user.name}
         timing={timing}
         xp={levelxp}
         onPress={moinstate}
-        sport={user.sportPlayed}
+        sport={user.sport.title}
       />
     );
   } else if (tabLevel[levelStatus] === "onProgress") {
     toDisp = (
       <OnProgress
-        total={totalSubLevels}
-        level={level}
+        level={user.level}
+        subLevel={user.subLevel}
         xp={levelxp}
         name={titleSubLevel}
         pourcent={pourcent}
-        onPress={moinstate}
-        token={user.token}
-        sport={user.sportPlayed}
-        xpUpdated={levelxp + user.xp}
-        updatelvl={nextLevel}
-        renit={() => setLevelStatus(0)}
+        token={token}
+        sport={user.sport.title}
         levelmoins={level}
         levelplus={level + 1}
-        sessions={user.sessions}
-        playTime={user.playTime}
-        timing={timing}
       />
     );
   }
@@ -127,24 +143,28 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    marginHorizontal: "auto",
-    width: "50%",
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 8,
-    marginBottom: 40,
+    marginTop: 10,
   },
   back: {
     width: "20%",
   },
-
   container: {
     flex: 1,
   },
   backButton: {
-    paddingLeft: 30,
-    paddingTop: 50,
+    paddingLeft: 10,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  loaderText: {
+    marginTop: 12,
+    fontSize: 16,
   },
 });

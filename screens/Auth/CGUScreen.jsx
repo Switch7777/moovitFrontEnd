@@ -1,10 +1,8 @@
-import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Touchable,
   TouchableOpacity,
 } from "react-native";
 import cgu from "../../data/cgu-fr.json";

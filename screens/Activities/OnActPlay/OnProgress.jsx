@@ -1,43 +1,25 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, Image, SafeAreaView } from "react-native";
 import ProgressStep from "../../../components/ProgressStep";
-import { updateUser } from "../../../reducers/userSlice";
-import { addActivityToStore } from "../../../reducers/activitySlice";
-import { useSelector, useDispatch } from "react-redux";
+import { upUserToStore } from "../../../reducers/userInfoSlice";
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { API_URL } from "@env";
-import { FontAwesome5 } from "@expo/vector-icons";
+
 import { FontAwesome } from "@expo/vector-icons";
 
 export default function OnReward({
   xp,
   name,
-  medalUri,
-  levelplus,
+  level,
+  subLevel,
   levelmoins,
   pourcent,
   sport,
   token,
-  updatelvl,
-  xpUpdated,
-  renit,
-  sessions,
-  playTime,
-  timing,
+  levelplus,
 }) {
   const dispatch = useDispatch();
-  const subLevelUpdated = updatelvl[1];
-  const levelUpdated = updatelvl[0];
-  const sessionUpd = sessions + 1;
-  const playUpd = playTime + timing;
+
   const imagePadel = [
     "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747827625/projectFinDeBatch/front/images/medals/medal-padel-04_pspous.png",
     "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747827083/projectFinDeBatch/front/images/medals/medal-padel-03_j1xbl9.png",
@@ -57,41 +39,38 @@ export default function OnReward({
     return images[index];
   }
 
-  // 👇 Appel clair
   const image = getRandomImage(sport);
-
+  console.log({
+    token: token,
+    sport: sport,
+    subLevel: subLevel,
+    level: level,
+  });
   useEffect(() => {
-    fetch(`${API_URL}/api/users/levelupdate`, {
+    fetch(`${API_URL}/api/update/level`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token: token,
         sport: sport,
-        xp: xpUpdated,
-        subLevel: subLevelUpdated,
-        level: levelUpdated,
-        sessions: sessionUpd,
-        playTime: playUpd,
+        subLevel: subLevel,
+        level: level,
       }),
     })
       .then((r) => r.json())
       .then((data) => {
         if (data.result) {
-          dispatch(
-            updateUser({
-              currentLevelID: levelUpdated,
-              currentSubLevelID: subLevelUpdated,
-              xp: xpUpdated,
-              sessions: sessionUpd,
-              playTime: playUpd,
-            })
-          );
-          dispatch(addActivityToStore(data.dataActivity.subLevels));
+          dispatch(upUserToStore(data));
+          console.log("demontage");
         } else {
-          console.log(data);
+          console.log(data.error);
         }
+      })
+      .catch((err) => {
+        console.error("Erreur lors du update au démontage :", err);
       });
   }, []);
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.content}>
@@ -154,15 +133,6 @@ const styles = StyleSheet.create({
     height: 100,
     alignItems: "center",
   },
-  backBtn: {
-    marginTop: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "#F3F3F3",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   content: {
     flex: 1,
     alignItems: "center",
@@ -173,7 +143,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginVertical: 12,
-    fontFamily: "arial",
     fontFamily: "ManropeRegular",
   },
   subText: {
@@ -212,7 +181,6 @@ const styles = StyleSheet.create({
   },
   textProg: {
     flexDirection: "row",
-
     bottom: "-12%",
     width: "80%",
     justifyContent: "space-between",

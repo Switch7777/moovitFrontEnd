@@ -3,17 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   value: {
     token: "",
-    photoUrl: "",
-    username: "",
-    admin: false,
-    sportPlayed: "",
-    xp: "",
-    level: "",
-    gender: "",
-    currentLevelID: "",
-    currentSubLevelID: "",
-    height: "",
-    weight: "",
+    provToken: "",
   },
 };
 
@@ -22,25 +12,19 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     addUserToStore: (state, action) => {
-      // On fusionne l'ancien state user avec les nouvelles infos reçues du back :
-      // Si une clé est absente dans le payload, on garde l'ancienne valeur existante.
-      // Ça évite de perdre une info (ex : photoUrl) si le back renvoie un payload incomplet.
-      state.value = { ...state.value, ...action.payload };
-      console.log(state.value);
+      if (action.payload.token) {
+        state.value.token = action.payload.token;
+        state.value.provToken = "";
+      } else if (action.payload.provToken) {
+        state.value.provToken = action.payload.provToken;
+        state.value.token = "";
+      }
     },
-    removeUserToStore: (state, action) => {
+    removeUserToStore: (state) => {
       state.value = initialState.value;
-    },
-    updateUser: (state, action) => {
-      state.value.currentLevelID = action.payload.currentLevelID;
-      state.value.currentSubLevelID = action.payload.currentSubLevelID;
-      state.value.xp = action.payload.xp;
-      state.value.sessions = action.payload.sessions;
-      state.value.playTime = action.payload.playTime;
     },
   },
 });
 
-export const { addUserToStore, removeUserToStore, updateUser } =
-  userSlice.actions;
+export const { addUserToStore, removeUserToStore } = userSlice.actions;
 export default userSlice.reducer;

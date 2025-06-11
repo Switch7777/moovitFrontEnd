@@ -51,7 +51,8 @@
         "title": "Ville",
         "desc": "Entrez votre ville",
         "name": "city",
-        "fieldType": "string"
+        "fieldType": "string",
+        "useGeolocation": true
       }
     ]
   },

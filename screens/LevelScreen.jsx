@@ -5,8 +5,10 @@ import {
   Text,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
-// import ActivityCard from "../../components/ActivityCard";
+
 import CardLevelClicable from "../components/CardLevelClicable";
 import { useSelector } from "react-redux";
 
@@ -15,80 +17,70 @@ import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { API_URL } from "@env";
 
-//a importé dans le terminal !!!  npx expo install react-native-safe-area-context
-
 export default function LevelScreen(props) {
-  const activity = useSelector((state) => state.activity.value);
-  const user = useSelector((state) => state.user.value);
-  const [allActivity, setAllActivity] = useState([]);
+  const token = useSelector((state) => state.user.value.token);
+  const [isLoading, setIsLoading] = useState(true);
+  const user = useSelector((state) => state.userInfo.value);
+  const [allActivity, setAllActivity] = useState();
 
-  // let levelsCards = activity?.map((e, i) => (
-  //   <CardLevelClicable
-  //     key={i}
-  //     // num = {i}
-  //     width="368"
-  //     style={styles.activity}
-  //     text={e.title}
-  //     description={e.description}
-  //     fontSize={13}
-  //     backgroundColor="#C5C4D9"
-  //     color="black"
-  //     url={e.image}
-  //     fill={false}
-  //     linkTo="NewLevelScreen"
-  //   />
-  // ));
-
-  function fetchActivityData() {
-    // console.log(user.sportPlayed);
-
-    return fetch(`${API_URL}/api/users/getsport`, {
+  useEffect(() => {
+    fetch(`${API_URL}/api/activity/getdataact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        sport: user.sportPlayed,
+        token: token,
+        sport: user.sport.title,
+        subLevel: user.subLevel,
+        level: user.level,
       }),
     })
-      .then((r) => r.json())
-      .then((dataSport) => {
-        if (dataSport.result) {
-          let activityArray = [];
-          for (let act of dataSport.data.levels) {
-            activityArray.push(act);
-          }
-
-          setAllActivity(activityArray);
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.result !== false) {
+          setAllActivity(data.activity);
+          setIsLoading(false);
+        } else {
+          console.log("Erreur :", data.error);
         }
-      });
+      })
+      .catch((err) => console.error("Erreur réseau :", err));
+  }, []);
+
+  if (isLoading || !allActivity) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#785BFF" />
+        <Text style={styles.loaderText}>Chargement des activités...</Text>
+      </View>
+    );
   }
 
   let levelsCards = allActivity?.map((e, i) => {
-    // let bgCol;
-    //   i === 0 || i === 3 || i === 6 || i === 9
-    //   ? (bgCol = "#eeeef5")
-    //   : i === 1 || i === 4 || i === 7 || i === 10
-    //   ? (bgCol = "#ac9cc4")
-    //   : i === 2 || i === 5 || i === 8 || i === 11
-    //   ? (bgCol = "#ffecce")
-    //   : (bgCol = "#C5C4D9");
+    const isLocked = i > user.subLevel - 1;
 
     return (
-      <CardLevelClicable
-        key={i}
-        // num = {i}
-        width="100%"
-        style={styles.activity}
-        text={e.title}
-        description={e.description}
-        fontSize={13}
-        backgroundColor={"#eaeaea"}
-        color="black"
-        url={e.image}
-        fill={false}
-        linkTo="NewLevelScreen"
-        subLevelSent={e.subLevels}
-        // opacity = "0"
-      />
+      <View key={i} style={{ position: "relative", marginBottom: 10 }}>
+        <CardLevelClicable
+          width="100%"
+          style={[
+            styles.activity,
+            isLocked && { opacity: 0.4 }, // grisé
+          ]}
+          text={e.title}
+          description={e.description}
+          fontSize={13}
+          backgroundColor={"#eaeaea"}
+          color="black"
+          url={e.image}
+          fill={false}
+          subLevelSent={e.subLevels}
+        />
+        {isLocked && (
+          <View style={styles.overlayLocked}>
+            <Text style={styles.lockIcon}>🔒</Text>
+          </View>
+        )}
+      </View>
     );
   });
 
@@ -98,48 +90,25 @@ export default function LevelScreen(props) {
   const niv = "";
   const bgImage = ""; //"https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747168977/projectFinDeBatch/front/images/activities/padel/padel-photo-005.avif"
 
-  // 1er appel : charge le dashboard au premier render
-  useEffect(() => {
-    fetchActivityData();
-    //console.log("activity subLevels ",activity.length);
-  }, []);
   return (
     <SafeAreaProvider>
-      {/* <SafeAreaView style={styles.container} edges={["top"]}>  cette balise est sesactivé car le rendu est inesthetique */}
       <View style={styles.container}>
-        
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => props.navigation.goBack()}
+        >
+          <Text style={styles.backText}>←</Text>
+        </TouchableOpacity>
         <Image style={styles.topImg} source={{ uri: topImg }} />
         <View style={styles.textBubble}>
-        <Text style={styles.toptxt}>
-          Explore tous les niveaux {"\n"}pour suivre ton évolution ! {niv}
-        </Text>
+          <Text style={styles.toptxt}>
+            Explore tous les niveaux {"\n"}pour suivre ton évolution ! {niv}
+          </Text>
         </View>
         <View style={styles.midd}>
-          {/* <ImageBackground
-            source={{ uri: bgImage }}
-            resizeMode="cover"
-            style={styles.image}
-          > */}
-            <ScrollView>
-              {levelsCards}
-              {/* <CardLevelClicable
-            style={styles.try}
-            text="titre"
-            description="description..."
-            color="black"
-            width="370" //long du boutton
-            height="140" //haut du boutton
-             backgroundColor="#FCEACE" //gris du figma
-            url="https://reactnative.dev/img/tiny_logo.png"
-            fontWeight="700"
-            linkTo="NewLevelScreen"
-            
-          /> */}
-            </ScrollView>
-          {/* </ImageBackground> */}
+          <ScrollView>{levelsCards}</ScrollView>
         </View>
       </View>
-      {/* </SafeAreaView> */}
     </SafeAreaProvider>
   );
 }
@@ -164,7 +133,6 @@ const styles = StyleSheet.create({
   topImg: {
     width: "100%",
     height: "35%",
-    
   },
   toptxt: {
     marginTop: "-39%",
@@ -184,7 +152,7 @@ const styles = StyleSheet.create({
   //   width: "100%",
   // },
   midd: {
-        backgroundColor: "rgba(85, 23, 23, 0)",
+    backgroundColor: "rgba(85, 23, 23, 0)",
     // zIndex:"999",
     // backgroundColor: "rgba(255, 255, 255, 0)",
     flex: 1,
@@ -212,5 +180,45 @@ const styles = StyleSheet.create({
   // activity: {},
   bottomButton: {
     flexDirection: "row",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  loaderText: {
+    marginTop: 12,
+    fontSize: 16,
+  },
+  overlayLocked: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 16,
+    zIndex: 1,
+  },
+
+  lockIcon: {
+    fontSize: 24,
+    color: "#fff",
+    opacity: 0.9,
+  },
+  backButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+
+  backText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
   },
 });

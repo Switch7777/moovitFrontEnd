@@ -1,16 +1,13 @@
-import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 
 export default function ForgotScreen() {
-  const [email, setEmail] = useState("");
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
-      {/* Bouton retour */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -19,9 +16,7 @@ export default function ForgotScreen() {
       </TouchableOpacity>
 
       <Text style={styles.title}>Page en construction</Text>
-      {/*<Text style={styles.subtitle}>En cours</Text>*/}
 
-      {/* Animation nuage */}
       <LottieView
         source={require("../../assets/Animation - 1748526184745.json")} // chemin package json pour le lien animation en progression + installer au cas où yarn add lottie-react-native
         autoPlay

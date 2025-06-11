@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,51 +17,90 @@ import { addUserToStore } from "../../reducers/userSlice";
 import { useDispatch } from "react-redux";
 import { API_URL } from "@env";
 import { checkBody } from "../../modules/checkBody";
+import {
+  GOOGLE_EXPO_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+  GOOGLE_REDIRECT_URI,
+} from "@env";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
-  //const navigation = useNavigation();
-
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: GOOGLE_EXPO_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    redirectUri: GOOGLE_REDIRECT_URI,
+  });
   const [passwordVisible, setPasswordVisible] = useState(false);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+      fetch(`${API_URL}/api/auth/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: authentication.accessToken }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.provToken) {
+            dispatch(addUserToStore({ provToken: data.provToken }));
+            navigation.replace("onBoarding");
+          } else if (data.token) {
+            dispatch(addUserToStore({ token: data.token }));
+            navigation.replace("Dashboard");
+          }
+        })
+        .catch(() => alert("Erreur lors de l’authentification Google"));
+    }
+  }, [response]);
+
   const handleLogin = () => {
     const requiredFields = ["email", "password"];
     const body = { email, password };
-
-    console.log(API_URL);
 
     if (!checkBody(body, requiredFields)) {
       setEmailError("Tous les champs sont requis");
       return;
     }
 
-    // Envoi d'une requête POST à l'API backend pour la route /signin
-    fetch(`${API_URL}/api/users/signin`, {
-      method: "POST", // méthode HTTP POST pour envoyer les données
-      headers: { "Content-Type": "application/json" }, // type de contenu envoyé en JSON
-      body: JSON.stringify({
-        email: email, // email saisi par l'utilisateur∑
-        password: password, // mot de passe saisi par l'utilisateur
-      }),
-      // transformation de la réponse en objet JSON
+    fetch(`${API_URL}/api/auth/signin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     })
-      .then((data) => data.json())
-      .then((resultData) => {
-        console.log("-- ", resultData);
+      .then((response) => {
+        const status = response.status;
+        response.json().then((data) => {
+          console.log(status);
 
-        // Si le login est réussi
-        if (resultData.result && resultData.sport.length === 0) {
-          //envoi vers le screen dashboard
-          navigation.navigate("onBoarding");
-          dispatch(addUserToStore({ token: resultData.token }));
-        } else if (resultData.result && resultData.sport.length > 0) {
-          navigation.navigate("TabNavigator");
-          dispatch(addUserToStore({ token: resultData.token }));
-        } else {
-          alert(resultData.error);
-        }
+          if (status === 202) {
+            dispatch(addUserToStore({ provToken: data.provToken }));
+            navigation.replace("onBoarding");
+          } else if (status === 200) {
+            navigation.replace("Dashboard");
+
+            dispatch(addUserToStore({ token: data.token }));
+          } else if (status === 404) {
+            alert(data.error);
+          } else if (status === 400) {
+            alert(data.error);
+          } else if (status === 401) {
+            alert(data.error);
+          } else if (status === 500) {
+            alert(data.error);
+          }
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Une erreur s'est produite.");
       });
   };
 
@@ -76,7 +115,6 @@ export default function LoginScreen({ navigation }) {
         style={styles.container}
         keyboardVerticalOffset={80}
       >
-        {/* Bouton retour */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -112,7 +150,7 @@ export default function LoginScreen({ navigation }) {
                 placeholderTextColor="#aaa"
                 secureTextEntry={!passwordVisible}
                 style={styles.inputText}
-                value={password} // pour le state
+                value={password}
                 onChangeText={setPassword}
               />
 
@@ -133,26 +171,30 @@ export default function LoginScreen({ navigation }) {
             />
           </View>
         </View>
-        {/* Boutons sociaux sans fonctionnalité pour l'instant */}
+
         <TouchableOpacity
           style={styles.socialButton}
-          onPress={() => navigation.navigate("Forgot")}
+          onPress={() => promptAsync()}
+          disabled={!request}
         >
           <AntDesign name="google" size={20} color="#000" />
-
           <Text style={styles.socialText}>Continuer avec Google</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.socialButton}
-          onPress={() => navigation.navigate("Forgot")}
+          onPress={() =>
+            alert(
+              "100$ pour se connecter avec une pomme... j’suis pas Steve Jobs moi 😤💸",
+              [{ text: "OK, je reste pauvre mais libre." }]
+            )
+          }
         >
           <FontAwesome name="apple" size={20} color="#000" />
 
           <Text style={styles.socialText}>Continuer avec Apple</Text>
         </TouchableOpacity>
 
-        {/* Liens bas de page */}
         <TouchableOpacity onPress={() => navigation.navigate("S'inscrire")}>
           <Text style={styles.footer}>Pas encore inscrit ?{"\n"}</Text>
         </TouchableOpacity>
@@ -166,7 +208,7 @@ export default function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   formContainer: {
-    backgroundColor: "#f9f9f9", // fond gris clair
+    backgroundColor: "#f9f9f9",
     borderRadius: 16,
     padding: 20,
     marginVertical: 10,
@@ -174,11 +216,6 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 40,
   },
-
-  /*form: {
-  gap: 50,
-},*/
-
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -197,7 +234,6 @@ const styles = StyleSheet.create({
     fontFamily: "CocomatPro-Regular",
     marginBottom: 60,
     paddingTop: 20,
-
     color: "#000",
   },
   brand: {
@@ -235,7 +271,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   inputText: {
-    //flex: 1,
     fontFamily: "Manrope-Extralight",
   },
   socialButton: {
@@ -267,22 +302,3 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
-
-/*const handleLogin = () => {
-  const requiredFields = ['email', 'password'];
-  const body = { email, password };
-
-  if (!checkBody(body, requiredFields)) {
-    setEmailError("Tous les champs sont requis");
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    setEmailError("Email invalide");
-  } else {
-    setEmailError("");
-    console.log("Connexion réussie");
-    navigation.navigate("onBoarding"); // ou API
-  }
-};*/

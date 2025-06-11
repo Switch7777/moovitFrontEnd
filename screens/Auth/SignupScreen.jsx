@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Pressable,
   Platform,
   KeyboardAvoidingView,
-} from "react-native"; // import des composants react native
+} from "react-native";
 import { Ionicons, AntDesign, FontAwesome } from "@expo/vector-icons";
 import Button from "../../components/Buttons";
 import { checkBody } from "../../modules/checkBody";
@@ -16,6 +16,16 @@ import { useDispatch } from "react-redux";
 import { addUserToStore } from "../../reducers/userSlice";
 import { API_URL } from "@env";
 import CardLevelClicable from "../../components/CardLevelClicable";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+import {
+  GOOGLE_EXPO_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+  GOOGLE_REDIRECT_URI,
+} from "@env";
+
+WebBrowser.maybeCompleteAuthSession();
+
 export default function SignupScreen({ navigation }) {
   // état pour afficher ou cacher le mot de passe
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -23,8 +33,32 @@ export default function SignupScreen({ navigation }) {
   const [emailError, setEmailError] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
-  console.log(email);
-  console.log(password);
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: GOOGLE_EXPO_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    redirectUri: GOOGLE_REDIRECT_URI,
+  });
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+      fetch(`${API_URL}/api/auth/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: authentication.accessToken }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.provToken) {
+            dispatch(addUserToStore({ provToken: data.provToken }));
+            navigation.replace("onBoarding");
+          } else if (data.token) {
+            dispatch(addUserToStore({ token: data.token }));
+            navigation.replace("Dashboard");
+          }
+        })
+        .catch(() => alert("Erreur lors de l’authentification Google"));
+    }
+  }, [response]);
 
   // si l'email est invalid afficher le message d'erreur
 
@@ -72,9 +106,9 @@ export default function SignupScreen({ navigation }) {
     if (!emailRegex.test(email)) {
       setEmailError("Email invalide");
     } else {
-      setEmailError(""); // sinon on efface l'erreur
+      setEmailError("");
 
-      fetch(`${API_URL}/api/users/signup`, {
+      fetch(`${API_URL}/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,24 +116,28 @@ export default function SignupScreen({ navigation }) {
         body: JSON.stringify({ password: password, email: email }),
       })
         .then((response) => {
-          if (!response.ok) {
-            alert("Verifiez votre connexion");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.result) {
-            console.log("Réponse du backend :", data);
-            dispatch(addUserToStore({ token: data.token }));
-            navigation.navigate("onBoarding");
-          } else {
-            alert(data.error);
-          }
+          const status = response.status;
+          response.json().then((data) => {
+            console.log(status);
+
+            if (status === 201) {
+              dispatch(addUserToStore({ provToken: data.provToken }));
+              navigation.replace("onBoarding");
+            } else if (status === 400) {
+              setEmailError(data.error);
+            } else if (status === 409) {
+              setEmailError(data.error);
+            } else if (status === 422) {
+              setEmailError(data.error);
+            } else {
+              setEmailError(data.error);
+            }
+          });
         })
         .catch((error) => {
           console.error("Erreur lors de l’envoi :", error);
         });
-    } // navigation ou appel API ici vers le backend
+    }
   };
 
   return (
@@ -108,23 +146,21 @@ export default function SignupScreen({ navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={80}
     >
-      {/* Bouton retour */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
         <Ionicons name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
-      {/* Titre */}
+
       <Text style={styles.title}>Créer votre compte</Text>
-      {/* Bloc formulaire */}
+
       <View style={styles.form}>
-        {/* Email */}
         <View style={styles.input}>
           <TextInput
             placeholder="Email"
             placeholderTextColor="#aaa"
-            style={styles.inputField} // style appliqué uniquement sur le champs du texte
+            style={styles.inputField}
             value={email}
             onChangeText={(value) => setEmail(value)}
             keyboardType="email-address"
@@ -133,7 +169,6 @@ export default function SignupScreen({ navigation }) {
         </View>
         {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
-        {/* Password */}
         <View style={styles.input}>
           <TextInput
             placeholder="Mot de passe"
@@ -152,7 +187,6 @@ export default function SignupScreen({ navigation }) {
           </Pressable>
         </View>
 
-        {/* Sign in avec Button importé du composant*/}
         <Button
           title="S'inscrire"
           onPress={handleSignup}
@@ -160,22 +194,30 @@ export default function SignupScreen({ navigation }) {
           textColor="#000"
         />
       </View>
-      {/* Boutons sociaux visuels non fonctionnel pour l'instant */}
+
       <TouchableOpacity
         style={styles.socialButton}
-        onPress={() => navigation.navigate("Forgot")}
+        onPress={() => promptAsync()}
+        disabled={!request}
       >
         <AntDesign name="google" size={20} color="#000" />
-        <Text style={styles.socialText}>S'inscrire avec Google</Text>
+        <Text style={styles.socialText}>Continuer avec Google</Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.socialButton}
-        onPress={() => navigation.navigate("Forgot")}
+        onPress={() =>
+          alert(
+            "100$ pour se connecter avec une pomme... j’suis pas Steve Jobs moi 😤💸",
+            [{ text: "OK, je reste pauvre mais libre." }]
+          )
+        }
       >
         <FontAwesome name="apple" size={20} color="#000" />
-        <Text style={styles.socialText}>S'inscrire avec Apple</Text>
+
+        <Text style={styles.socialText}>Continuer avec Apple</Text>
       </TouchableOpacity>
-      {/* Mentions légales à voir si on ajoute un lien vers une page */}
+
       <Text
         style={[styles.footerText, styles.link]}
         onPress={() => navigation.navigate("cgu")}

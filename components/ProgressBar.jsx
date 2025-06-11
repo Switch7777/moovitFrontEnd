@@ -1,6 +1,5 @@
-import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
-import { ProgressBar, MD3Colors } from "react-native-paper";
+import { StyleSheet } from "react-native";
+import { ProgressBar } from "react-native-paper";
 import questionForm from "../data/onBoardingQuestion.json";
 
 const ProgressBarComp = (props) => {

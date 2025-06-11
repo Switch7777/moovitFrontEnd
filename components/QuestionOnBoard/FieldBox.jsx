@@ -1,9 +1,18 @@
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import CardComp from "../Card";
 import { useState } from "react";
+import * as Location from "expo-location";
+import { API_URL } from "@env";
 
 export default function FieldBox({ question, infos, handleChange }) {
   const [errors, setErrors] = useState({});
+  const [loadingGeo, setLoadingGeo] = useState(false);
 
   const validate = (name, value, range) => {
     if (range && value !== "") {
@@ -18,6 +27,42 @@ export default function FieldBox({ question, infos, handleChange }) {
       }
     } else {
       setErrors((e) => ({ ...e, [name]: null }));
+    }
+  };
+
+  const getLocation = async () => {
+    try {
+      setLoadingGeo(true);
+
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permission refusée pour la géolocalisation.");
+        return;
+      }
+
+      const { coords } = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = coords;
+
+      // Appel backend
+      const response = await fetch(`${API_URL}/api/geoloc`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat: latitude, lon: longitude }),
+      });
+
+      if (!response.ok) throw new Error("Erreur backend");
+
+      const data = await response.json();
+      console.log(data);
+      if (data.city) {
+        handleChange("city", data.city);
+      } else {
+        alert("Ville non détectée par le backend.");
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoadingGeo(false);
     }
   };
 
@@ -49,6 +94,13 @@ export default function FieldBox({ question, infos, handleChange }) {
               style={styles.input}
               keyboardType={data.fieldType === "number" ? "numeric" : "default"}
             />
+            {data.useGeolocation && (
+              <TouchableOpacity style={styles.geoBtn} onPress={getLocation}>
+                <Text style={styles.geoBtnText}>
+                  {loadingGeo ? "Recherche..." : "Géolocalise-moi"}
+                </Text>
+              </TouchableOpacity>
+            )}
             {errors[data.name] && (
               <Text style={styles.errorText}>{errors[data.name]}</Text>
             )}
@@ -90,6 +142,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Questrial-Regular",
     backgroundColor: "#fff",
+  },
+  geoBtn: {
+    marginTop: 20,
+
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  geoBtnText: {
+    color: "black",
+    fontFamily: "ManropeBold",
   },
   errorText: {
     color: "red",

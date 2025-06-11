@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -145,14 +145,13 @@ const styles = StyleSheet.create({
   mainCard: {
     width: "60%",
     backgroundColor: "#F5F5F5",
-
     padding: 16,
     borderRadius: 24,
     alignItems: "center",
   },
   image: {
     width: "100%",
-    height: 180,
+    height: 150,
     borderRadius: 16,
     marginBottom: 10,
   },
@@ -173,7 +172,6 @@ const styles = StyleSheet.create({
     width: 110,
     height: 180,
     margin: "auto",
-    // backgroundColor: "#FCEACE",
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
@@ -208,7 +206,6 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#EEEEEE",
     borderRadius: 16,
-
     marginTop: 10,
   },
   tipTitle: {
@@ -216,7 +213,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
     textAlign: "center",
-    color: "blck",
+    color: "black",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

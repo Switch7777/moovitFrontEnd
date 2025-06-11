@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useSelector, useDispatch } from "react-redux";
-import { API_URL } from "@env";
 
 export default function OnDone(props) {
   const [rating, setRating] = useState(0);
