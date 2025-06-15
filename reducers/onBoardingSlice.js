@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   value: {},
 };
-
+// Redux afin d'enregister l'avancement de l'onboarding
 export const onBoardingSlice = createSlice({
   name: "onBoarding",
   initialState,
@@ -18,4 +18,4 @@ export const onBoardingSlice = createSlice({
 });
 
 export const { addInfoToStore, removeAllInfoToStore } = onBoardingSlice.actions;
-export default onBoardingSlice.reducer;
+export default onBoardingSlice.reducer; // Export des fonction reducers

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { BarChart, Grid } from "react-native-svg-charts";
 import { G, Text as SvgText } from "react-native-svg";
 
+// Module pour les graph sur les statistique
 const Labels = ({ x, y, bandwidth, data }) => (
   <G>
     {data.map((item, index) => (

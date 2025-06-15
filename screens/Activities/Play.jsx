@@ -11,12 +11,14 @@ import Button from "../../components/Buttons";
 import LoadingScreen from "../../components/LoadingPage";
 
 export default function Play({ navigation }) {
+  // Recuperation de l'user dans le redux
   const token = useSelector((state) => state.user.value.token);
   const user = useSelector((state) => state.userInfo.value);
-
+  // Mise en place des sous screens
   const tabLevel = ["onPlay", "onDone", "onProgress"];
   const [levelStatus, setLevelStatus] = useState(0);
   const [activity, setActivity] = useState(null);
+  // Mise en place du loadingPage
   const [isLoading, setIsLoading] = useState(true);
   const [level, setLevel] = useState(user.level);
   const [subLevel, setSubLevel] = useState(user.subLevel);
@@ -49,6 +51,7 @@ export default function Play({ navigation }) {
     setSubLevel(user.subLevel);
   }, [user.level, user.subLevel]);
 
+  // Si loading = true et activity nul , renvoie sur la loading page
   if (isLoading || !activity) {
     return <LoadingScreen message="Chargement du niveau..." />;
   }
@@ -56,6 +59,7 @@ export default function Play({ navigation }) {
   const totalSubLevels = activity.length;
   const subLevelInfos = activity[subLevel - 1];
 
+  // NAVIGATION DES PAGES , "SUIVANT" ET BOUTON GOBACK
   const plusstate = () => {
     if (levelStatus < tabLevel.length - 1) {
       setLevelStatus(levelStatus + 1);

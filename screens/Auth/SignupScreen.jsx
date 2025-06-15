@@ -33,6 +33,7 @@ export default function SignupScreen({ navigation }) {
   const [emailError, setEmailError] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
+  // etat pour l'auth google
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId: GOOGLE_EXPO_CLIENT_ID,
     iosClientId: GOOGLE_IOS_CLIENT_ID,
@@ -119,7 +120,7 @@ export default function SignupScreen({ navigation }) {
           const status = response.status;
           response.json().then((data) => {
             console.log(status);
-
+            // Traitement des status code
             if (status === 201) {
               dispatch(addUserToStore({ provToken: data.provToken }));
               navigation.replace("onBoarding");

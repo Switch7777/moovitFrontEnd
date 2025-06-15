@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import CardComp from "../Card";
-
+// Si type de question === checkboxgroup
 export default function CheckBoxObjectGroup({ question, infos, handleChange }) {
   return (
     <View style={styles.container}>
+      {/* si presence de mainquestion dans le questionnaire  */}
       {question.mainQuestion && (
         <CardComp
           color="#F5F5F5"
@@ -11,7 +12,7 @@ export default function CheckBoxObjectGroup({ question, infos, handleChange }) {
           borderColor="#D5D5D5"
         />
       )}
-
+      {/* si presence de secondaryquestion dans le questionnaire  */}
       {question.secondaryQuestion && (
         <View style={styles.second}>
           <Text style={styles.secondary}>{question.secondaryQuestion}</Text>
@@ -19,6 +20,7 @@ export default function CheckBoxObjectGroup({ question, infos, handleChange }) {
       )}
 
       <View style={styles.optionList}>
+        {/* Map sur les question  CheckBOX , ONPRESS = fonction dans le parent (ajout dun objet avec les data de l'objet selctionné) */}
         {question.data.map((data) => (
           <TouchableOpacity
             key={data.main}
@@ -31,6 +33,7 @@ export default function CheckBoxObjectGroup({ question, infos, handleChange }) {
                 infos[data.name] === data.main && styles.checkboxChecked,
               ]}
             >
+              {/* Si data.name selectionné === checbox= checked  */}
               {infos[data.name] === data.main && (
                 <Text style={styles.checkmark}>✔</Text>
               )}

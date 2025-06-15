@@ -1,7 +1,6 @@
-import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 //pour pouvoir pusher
-
+// Valeur par default envoyé si pas donné non envoyé en props
 export default function Button({
   title,
   onPress,

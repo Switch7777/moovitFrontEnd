@@ -3,6 +3,7 @@ import { Image, View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 //creation d'une carte d'activité clicable
+// Valeurs par default
 function CardLevelClicable(
   {
     text = "", //text
@@ -27,7 +28,7 @@ function CardLevelClicable(
   return (
     <TouchableOpacity //propriete qui permet de clicker comme button et onpress
       onPress={() => {
-        navigation.navigate(linkTo, { subLevel: subLevelSent });
+        navigation.navigate(linkTo, { subLevel: subLevelSent }); // Données envoyées au prochain écran // Inutilisé grace au fetch mais a reutiliser
       }} //lien executable au click
       style={[styles.button, { width, height, backgroundColor }]} //modif du css via les props
     >

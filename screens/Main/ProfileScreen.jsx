@@ -48,6 +48,7 @@ export default function ProfileScreen({}) {
       const selectedAsset = result.assets[0];
       setImageUri(selectedAsset.uri);
       dispatch(addUserPhotoToStore(selectedAsset.uri));
+      // Mise en place d'un formData pour la recuperation d ela photo dans le back
       const formData = new FormData();
       formData.append("photoFromFront", {
         uri: selectedAsset.uri,
@@ -98,10 +99,10 @@ export default function ProfileScreen({}) {
           alert("Une erreur est survenue");
         }
       },
-      "secure-text"
+      "secure-text" // Cache du mdp
     );
   };
-
+  // Medaille chargé aleatoirement en attendant les medailles
   let medalsData;
 
   let natationImages = [

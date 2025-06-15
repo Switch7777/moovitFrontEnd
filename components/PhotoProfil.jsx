@@ -2,8 +2,6 @@ import React from "react";
 import { Image, View, StyleSheet } from "react-native";
 
 function PhotoProfil(props) {
-  // Log pour checker URL à chaque render
-
   return (
     <View style={styles.container}>
       <Image

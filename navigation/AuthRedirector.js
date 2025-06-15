@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
-
+// A mmetre en place pour une securité si token present dans le redux
 export default function AuthRedirector({ navigation }) {
   const { token, provToken } = useSelector((state) => state.user.value);
 

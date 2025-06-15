@@ -1,10 +1,11 @@
-import { View, Text, ActivityIndicator, StyleSheet, Image } from "react-native";
-
+import { View, Text, ActivityIndicator, StyleSheet, Image } from "react-native"; // Activityindicator , module natif pour la roue qui tourne
+// V2 APPLICATION PLUS FLUIDE ET MOINS DERREUR
+// Message par default
 export default function LoadingScreen({ message = "Chargement en cours..." }) {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../assets/images/mooveit-logo.png")} // adapte si ton chemin change
+        source={require("../assets/images/mooveit-logo.png")}
         style={styles.logo}
         resizeMode="contain"
       />

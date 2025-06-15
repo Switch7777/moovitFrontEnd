@@ -1,7 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { performLinearAnimation } from "react-native-circular-progress/src/AnimatedCircularProgress";
+import { AnimatedCircularProgress } from "react-native-circular-progress"; // Import du module pour la progress bar (full cercle pour le dahsboard)
 
 export default function ExercisesProgressBar(props) {
   return (
@@ -17,7 +16,7 @@ export default function ExercisesProgressBar(props) {
         duration={1000}
       >
         {(fill) => (
-          <Text style={styles.progressText}>{`${Math.round(fill)}%`}</Text>
+          <Text style={styles.progressText}>{`${Math.round(fill)}%`}</Text> // arrondi au entier sup
         )}
       </AnimatedCircularProgress>
     </View>

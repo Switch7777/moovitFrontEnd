@@ -1,5 +1,4 @@
-import React from "react";
-import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
+import { Text, StyleSheet, View } from "react-native";
 
 const CardComp = (props) => {
   return (
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     marginHorizontal: "auto",
     borderRadius: 20,
-    // borderWidth: 1,
+
     justifyContent: "center",
     alignItems: "center",
   },

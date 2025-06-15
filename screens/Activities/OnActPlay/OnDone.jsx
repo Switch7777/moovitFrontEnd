@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function OnDone(props) {
   const [rating, setRating] = useState(0);
 
+  // Les stats niveau et calorie , sont encore en dur pas dynamique , en cours de reflexion pour rendre ses donnée dynamique
   const stats = {
     niveau: "Débutant",
     xp: props.xp,
@@ -52,6 +53,7 @@ export default function OnDone(props) {
 
         <Text style={styles.note}>Note ton expérience !</Text>
         <View style={styles.starsContainer}>
+          {/* Mise en place d'une notation par etoiles */}
           {[1, 2, 3, 4, 5].map((i) => (
             <TouchableOpacity
               key={i}

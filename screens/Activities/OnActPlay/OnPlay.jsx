@@ -13,6 +13,7 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function OnPlay({ infos, title }) {
+  // Deconstructuration de infos
   const { image, mediaUrl, description, tipOfThePro, timing } = infos;
 
   const [isRunning, setIsRunning] = useState(false);
@@ -20,6 +21,7 @@ export default function OnPlay({ infos, title }) {
   const [playing, setPlaying] = useState(false);
   const intervalRef = useRef(null);
 
+  // Mise en place d'une fonction pour recuperarer l'id de la video
   const extractYouTubeID = (url) => {
     try {
       return new URL(url).searchParams.get("v");
@@ -30,10 +32,11 @@ export default function OnPlay({ infos, title }) {
 
   const videoId = extractYouTubeID(mediaUrl);
 
+  // Mise en place d'un compte a rebours
   useEffect(() => {
     setSecondsLeft(timing * 60);
   }, [timing]);
-
+  // Use effect se produissant a chaque fois que isrunning change
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -56,7 +59,7 @@ export default function OnPlay({ infos, title }) {
   const toggleTimer = () => setIsRunning((prev) => !prev);
   const onVideoEnd = useCallback(() => setPlaying(false), []);
   const formatTime = (s) =>
-    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`; // Padsatart , ajoute un 0 si les seconde est inferieur a 10
 
   return (
     <LinearGradient

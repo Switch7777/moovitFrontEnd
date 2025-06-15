@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import CardComp from "../Card";
-
+// Si type de question === imageselc
 export default function ImageSelect({ question, infos, handleChange }) {
   return (
     <View style={styles.container}>
+      {/* si presence de mainquestion dans le questionnaire  */}
       {question.mainQuestion && (
         <CardComp
           color="#F5F5F5"
@@ -11,12 +12,13 @@ export default function ImageSelect({ question, infos, handleChange }) {
           borderColor="#D5D5D5"
         />
       )}
-
+      {/* si presence de secondaryquestion dans le questionnaire  */}
       {question.secondaryQuestion && (
         <Text style={styles.secondary}>{question.secondaryQuestion}</Text>
       )}
 
       <View style={styles.imageGroup}>
+        {/* Map sur les question  CheckBOX , ONPRESS = fonction dans le parent (ajout dun objet avec les data de l'objet selctionné) */}
         {question.data.map((data) => (
           <TouchableOpacity
             key={data.title}

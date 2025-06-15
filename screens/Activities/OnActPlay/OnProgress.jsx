@@ -20,6 +20,7 @@ export default function OnReward({
 }) {
   const dispatch = useDispatch();
 
+  // Random sur medaille en attendant la mise en place d'une bdd coherente avec les activité
   const imagePadel = [
     "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747827625/projectFinDeBatch/front/images/medals/medal-padel-04_pspous.png",
     "https://res.cloudinary.com/deuhttaaq/image/upload/f_auto,q_auto/v1747827083/projectFinDeBatch/front/images/medals/medal-padel-03_j1xbl9.png",
